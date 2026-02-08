@@ -136,10 +136,10 @@
         const cities = ["Delhi", "Mumbai", "Pune", "Bangalore", "Noida", "Gurgaon", "Jaipur", "Hyderabad", "Lucknow", "Kolkata"];
         
         const naughtyMsgs = [
-            "Available for real meet tonight ", "Ready for video call & sexy talk ", "Private meeting available ", 
-            "Want to talk on call? ", "Secret meeting at your hotel ", "Available for night stay ",
-            "Wants to connect with you ", "Online now for video call ", "Available for sexy talk ",
-            "Let's meet in person tonight ", "Direct meeting, no advance "
+            "Available for real meet tonight 💋", "Ready for video call & sexy talk 💋", "Private meeting available 💋🔥", 
+            "Want to talk on call? 📞", "Secret meeting at your hotel 🏨", "Available for night stay 🏠",
+            "Wants to connect with you 💞", "Online now for video call 📱", "Available for sexy talk 💋",
+            "Let's meet in person tonight 🔥", "Direct meeting, no advance ❌"
         ];
 
         const clientFeedbacks = [
@@ -151,15 +151,24 @@
             localStorage.setItem('gatePassed', 'true');
         }
 
+        async function updateLocationDisplay(city) {
+            if(city) {
+                document.getElementById('live-loc-text').innerText = `Available in ${city} (Live Now)`;
+                document.getElementById('loc-tag').innerText = city;
+            }
+        }
+
         async function initApp() {
             if(localStorage.getItem('gatePassed')) document.getElementById('age-gate').style.display = 'none';
 
+            // Real-time Location Logic
             try {
-                const res = await fetch('https://ipapi.co/json/');
-                const data = await res.json();
-                document.getElementById('live-loc-text').innerText = `Available in ${data.city || 'India'} (Live Now)`;
-                document.getElementById('loc-tag').innerText = data.city || 'India';
-            } catch(e) {}
+                const ipRes = await fetch('https://ipapi.co/json/');
+                const ipData = await ipRes.json();
+                updateLocationDisplay(ipData.city || 'India');
+            } catch(e) {
+                updateLocationDisplay('India');
+            }
 
             let profiles = [];
             for(let i=1; i<=85; i++) {
@@ -175,12 +184,11 @@
             window.allProfiles = profiles.sort(() => Math.random() - 0.5);
             renderProfiles(window.allProfiles);
 
-            // 20+ Indian Boy Name Reviews
             let revHtml = "";
             for(let i=0; i<30; i++) {
                 revHtml += `<div class="rev-card"><p class="text-[10px] text-white font-bold">${clientNames[Math.floor(Math.random()*clientNames.length)]} (${cities[Math.floor(Math.random()*10)]})</p><p class="text-[10px] text-slate-500 mt-1">${clientFeedbacks[Math.floor(Math.random()*clientFeedbacks.length)]}</p></div>`;
             }
-            document.getElementById('reviewTrack').innerHTML = revHtml + revHtml; // Duplicate for smooth loop
+            document.getElementById('reviewTrack').innerHTML = revHtml + revHtml;
 
             triggerRandomPopup();
         }
@@ -199,10 +207,16 @@
                         <div class="p-3 text-center">
                             <h3 class="text-[12px] font-bold text-slate-800">${p.fullName}, ${p.age}</h3>
                             <p class="text-[9px] text-blue-500 font-semibold mt-1">${p.city}</p>
-                            <button onclick="window.location.href='profile.html?id=${p.id}'" class="view-profile-btn">View Profile</button>
+                            <button onclick="goToProfile('${p.fullName}', '${p.city}', '${p.img}', '${p.age}', '${p.rating}')" class="view-profile-btn">View Profile</button>
                         </div>
                     </div>`;
             });
+        }
+
+        function goToProfile(name, city, img, age, rating) {
+            const selectedProfile = { name, city, img, age, rating };
+            localStorage.setItem('selectedProfile', JSON.stringify(selectedProfile));
+            window.location.href = 'profile.html';
         }
 
         function runSearch() {
@@ -222,12 +236,11 @@
             });
         }
 
-        // Random Popup Logic (After 7s, appears randomly)
         function triggerRandomPopup() {
             const randomDelay = Math.floor(Math.random() * (15000 - 7000 + 1)) + 7000;
             setTimeout(() => {
                 showPopup();
-                triggerRandomPopup(); // Loop it randomly
+                triggerRandomPopup();
             }, randomDelay);
         }
 
