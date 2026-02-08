@@ -44,7 +44,6 @@
     </header>
 
     <main class="max-w-lg mx-auto px-4 py-8">
-        
         <div class="bg-slate-900 rounded-[30px] p-6 text-white mb-6 shadow-xl relative overflow-hidden">
             <div class="relative z-10">
                 <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Status: Profile pending due to payment</p>
@@ -95,7 +94,7 @@
                         <i class="fas fa-key text-blue-600 mr-2"></i> How to Connect with Profile?
                     </p>
                     <p class="text-[9px] text-slate-500 font-bold leading-relaxed uppercase">
-                        Once your payment is verified, the coordinator will issue a <b>Unique Secret Access Code</b>. This code is required to unlock the private WhatsApp contact and finalize your Real Meet appointment.
+                        Once your payment is verified, the coordinator will issue a <b>Unique Secret Access Code</b>. This code is required to unlock the private WhatsApp contact.
                     </p>
                 </div>
             </div>
@@ -144,10 +143,11 @@
     </div>
 
     <script>
-        const fakePayers = ["Raj M.", "Suresh K.", "Vivek D.", "Arun S.", "Nikhil M.", "Sanjay K.", "Pritam S.", "Rahul V.", "Kunal J.", "Abhay A.", "Mohit P.", "Ishant B.", "Varun G.", "Tushar R.", "Yash L.", "Deepak T.", "Ankit D.", "Harsh H.", "Rishi W.", "Tanmay C."];
+        const fakePayers = ["Raj M.", "Suresh K.", "Vivek D.", "Arun S.", "Nikhil M.", "Sanjay K.", "Pritam S.", "Rahul V.", "Kunal J.", "Abhay A."];
         let currentCity = "India";
 
         async function initPayment() {
+            // 1. Sync Location
             try {
                 const res = await fetch('https://ipapi.co/json/');
                 const data = await res.json();
@@ -155,12 +155,22 @@
             } catch(e) {}
             document.getElementById('dynamic-head-loc').innerText = `Live in ${currentCity}`;
 
-            const data = JSON.parse(localStorage.getItem('tempClient'));
-            if(data) {
-                document.getElementById('clientNameDisplay').innerText = data.name;
-                document.getElementById('targetGirlDisplay').innerText = data.targetProfile;
+            // 2. NAME FIX: Check URL first, then LocalStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const nameFromUrl = urlParams.get('name');
+            const storedData = JSON.parse(localStorage.getItem('tempClient'));
+
+            if(nameFromUrl) {
+                document.getElementById('clientNameDisplay').innerText = nameFromUrl;
+            } else if(storedData && storedData.name) {
+                document.getElementById('clientNameDisplay').innerText = storedData.name;
             }
 
+            if(storedData && storedData.targetProfile) {
+                document.getElementById('targetGirlDisplay').innerText = storedData.targetProfile;
+            }
+
+            // 3. Timer Start
             let time = 120;
             setInterval(() => {
                 let mins = Math.floor(time / 60);
@@ -169,6 +179,7 @@
                 if(time > 0) time--;
             }, 1000);
 
+            // 4. Random Toasts
             setInterval(() => {
                 const toast = document.getElementById('payment-toast');
                 document.getElementById('toast-user').innerText = fakePayers[Math.floor(Math.random() * fakePayers.length)];
@@ -180,21 +191,20 @@
         function handleWhatsAppSecret() {
             const code = document.getElementById('secretCodeInput').value.trim().toUpperCase();
             const data = JSON.parse(localStorage.getItem('tempClient')) || {name: 'Client', phone: 'N/A', targetProfile: 'Premium Profile'};
-            
-            const msg = `⚡️ ACCESS CODE VERIFICATION ⚡️\n\nCode Entered: ${code}\nClient Name: ${data.name}\nPhone: ${data.phone}\nCity: ${currentCity}\nTarget Profile: ${data.targetProfile}\n\nI have the secret code. Start the meeting process.`;
+            const msg = `⚡️ ACCESS CODE VERIFICATION ⚡️\n\nCode: ${code}\nClient: ${data.name}\nCity: ${currentCity}\nTarget: ${data.targetProfile}`;
 
             if(code === "RM11") {
                 window.location.href = `https://wa.me/919354185036?text=${encodeURIComponent(msg)}`;
             } else if(code === "RM22") {
                 window.location.href = `https://wa.me/917678125700?text=${encodeURIComponent(msg)}`;
             } else {
-                alert("ACCESS DENIED: The entered code is invalid or expired. Please contact the Telegram coordinator after payment to receive your unique Access Code.");
+                alert("ACCESS DENIED: Please contact Telegram to receive your unique Access Code.");
             }
         }
 
         function sendToTelegram() {
-            const data = JSON.parse(localStorage.getItem('tempClient')) || {name: 'Guest', phone: 'N/A', targetProfile: 'Girl'};
-            const msg = `⚡️ PAYMENT SUBMISSION ⚡️\n\nClient Name: ${data.name}\nPhone: ${data.phone}\nCity: ${currentCity}\nTarget Profile: ${data.targetProfile}\nAmount: ₹499\n\nI have completed the payment. Please verify and send my Secret Access Code.`;
+            const data = JSON.parse(localStorage.getItem('tempClient')) || {name: 'Guest', phone: 'N/A'};
+            const msg = `⚡️ PAYMENT SUBMISSION ⚡️\n\nClient: ${data.name}\nCity: ${currentCity}\nTarget: ${data.targetProfile}\nAmount: ₹499`;
             window.location.href = `https://t.me/Xnehhaa?text=${encodeURIComponent(msg)}`;
         }
     </script>
