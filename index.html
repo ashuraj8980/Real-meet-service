@@ -46,18 +46,9 @@
         .rev-card { display: inline-block; background: #1e293b; padding: 12px 20px; margin-right: 20px; border-radius: 12px; border: 1px solid #334155; }
 
         .tele-float { position: fixed; right: 15px; bottom: 20px; background: #229ED9; color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 999; border: 2px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-        #age-gate { position: fixed; inset: 0; background: #020617; z-index: 10000; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body onload="initApp()" class="pt-32">
-
-    <div id="age-gate">
-        <div class="bg-white p-8 rounded-[30px] text-center max-w-xs w-full mx-4">
-            <h2 class="text-xl font-bold mb-2">Age Verification</h2>
-            <p class="text-xs text-slate-400 mb-6 font-medium">Click enter if you are 18 or older.</p>
-            <button onclick="enterSite()" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl text-sm transition active:scale-95">Enter Site</button>
-        </div>
-    </div>
 
     <header id="main-header" class="py-4 px-6">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
@@ -133,7 +124,9 @@
         const firstNames = ["Sneha", "Zoya", "Ananya", "Mehak", "Sana", "Ishita", "Priya", "Riya", "Kavya", "Tanya", "Simran", "Nisha", "Pooja", "Kiara", "Muskan", "Aliza", "Ayat", "Jiya", "Aysha", "Sanya"];
         const lastNames = ["Sharma", "Khan", "Malhotra", "Sheikh", "Verma", "Ahmed", "Kapoor", "Mirza", "Gupta", "Ansari"];
         const clientNames = ["Rahul", "Amit", "Sumit", "Zaid", "Arjun", "Vikram", "Saahil", "Rohan", "Deepak", "Yash", "Kabir", "Aditya", "Manish", "Faisal", "Varun", "Piyush", "Akash", "Karan", "Imran", "Sunny"];
-        const cities = ["Delhi", "Mumbai", "Pune", "Bangalore", "Noida", "Gurgaon", "Jaipur", "Hyderabad", "Lucknow", "Kolkata"];
+        
+        // Updated City List
+        const cities = ["Mumbai", "Delhi", "Bengaluru", "Noida", "Ahmedabad", "Gurugram", "Ludhiana (Punjab)", "Surat", "Pune", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Chandigarh", "Bhopal", "Ghaziabad", "Faridabad", "Patna", "Vadodara"];
         
         const naughtyMsgs = [
             "Available for real meet tonight 💋", "Ready for video call & sexy talk 💋", "Private meeting available 💋🔥", 
@@ -146,11 +139,6 @@
             "Genuine profile and safe meeting.", "Best service in the city, highly recommend.", "Very professional and discreet.", "Found exactly what I was looking for.", "Direct meeting without any hassle.", "Amazing experience, will book again.", "Verified profiles and polite behavior.", "100% genuine, no fake photos.", "Safe and comfortable environment.", "The best agency for real meets."
         ];
 
-        function enterSite() { 
-            document.getElementById('age-gate').style.display = 'none'; 
-            localStorage.setItem('gatePassed', 'true');
-        }
-
         async function updateLocationDisplay(city) {
             if(city) {
                 document.getElementById('live-loc-text').innerText = `Available in ${city} (Live Now)`;
@@ -159,8 +147,6 @@
         }
 
         async function initApp() {
-            if(localStorage.getItem('gatePassed')) document.getElementById('age-gate').style.display = 'none';
-
             // Real-time Location Logic
             try {
                 const ipRes = await fetch('https://ipapi.co/json/');
@@ -171,7 +157,7 @@
             }
 
             let profiles = [];
-            for(let i=1; i<=85; i++) {
+            for(let i=1; i<=100; i++) {
                 profiles.push({
                     id: i,
                     fullName: firstNames[Math.floor(Math.random()*firstNames.length)] + " " + lastNames[Math.floor(Math.random()*lastNames.length)],
@@ -186,7 +172,7 @@
 
             let revHtml = "";
             for(let i=0; i<30; i++) {
-                revHtml += `<div class="rev-card"><p class="text-[10px] text-white font-bold">${clientNames[Math.floor(Math.random()*clientNames.length)]} (${cities[Math.floor(Math.random()*10)]})</p><p class="text-[10px] text-slate-500 mt-1">${clientFeedbacks[Math.floor(Math.random()*clientFeedbacks.length)]}</p></div>`;
+                revHtml += `<div class="rev-card"><p class="text-[10px] text-white font-bold">${clientNames[Math.floor(Math.random()*clientNames.length)]} (${cities[Math.floor(Math.random()*cities.length)]})</p><p class="text-[10px] text-slate-500 mt-1">${clientFeedbacks[Math.floor(Math.random()*clientFeedbacks.length)]}</p></div>`;
             }
             document.getElementById('reviewTrack').innerHTML = revHtml + revHtml;
 
@@ -226,8 +212,12 @@
             cards.forEach(card => {
                 const city = card.getAttribute('data-city');
                 if (input !== "" && city.includes(input)) {
-                    if(count < 4) { card.style.display = "block"; count++; } 
-                    else { card.style.display = "none"; }
+                    if(count < 4) { 
+                        card.style.display = "block"; 
+                        count++; 
+                    } else { 
+                        card.style.display = "none"; 
+                    }
                 } else if (input === "") {
                     card.style.display = "block";
                 } else {
